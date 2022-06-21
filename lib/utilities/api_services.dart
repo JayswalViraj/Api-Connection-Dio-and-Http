@@ -1,43 +1,68 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:dio_api/global_data/constant_data.dart';
 import 'package:dio_api/models/posts.dart';
+import 'package:dio_api/models/satrt_object_model.dart';
+import 'package:dio_api/models/usersmodel.dart';
 import 'package:dio_api/screens/api_error_page.dart';
+import 'package:dio_api/screens/start_object_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ApiServices {
-  static BuildContext? apiContext;
-  static Posts? postsData;
-  static Future<Posts?> getPost({BuildContext? context}) async {
-    apiContext = context;
 
-    try {
-      Response postsData = await Dio().get(baseUrl + 'post');
-      debugPrint('STATUS: ${postsData.statusCode}');
-      if (postsData.statusCode == 200) {
-        debugPrint('User Info: ${postsData.data}');
-        postsData = postsFromJson(postsData.data) as Response;
-      } else {
-        Navigator.of(apiContext!)
-            .push(MaterialPageRoute(builder: (apiContext) => ApiErrorPage()));
-      }
-    } on DioError catch (e) {
+  
+  static List<Posts>? postsData ;
  
-      if (e.response != null) {
-        Navigator.of(apiContext!)
-            .push(MaterialPageRoute(builder: (apiContext) => ApiErrorPage()));
-        debugPrint('Dio error!');
-        debugPrint('STATUS: ${e.response?.statusCode}');
-        debugPrint('DATA: ${e.response?.data}');
-        debugPrint('HEADERS: ${e.response?.headers}');
-      } else {
-        Navigator.of(apiContext!)
-            .push(MaterialPageRoute(builder: (apiContext) => ApiErrorPage()));
+  static Future<List<Posts>?> callPostsApi() async {
+    var client = http.Client();
+    var uri = Uri.parse("https://jsonplaceholder.typicode.com/posts");
 
-        // Error due to setting up or sending the request
-        debugPrint('Error sending request!');
-        debugPrint(e.message);
-      }
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      var json = response.body;
+
+      return postsFromJson(json.toString());
     }
-    return postsData;
   }
+
+
+   static List<UsersModel>? usersData ;
+ 
+  static Future<List<UsersModel>?> callUsersApi() async {
+    var client = http.Client();
+    var uri = Uri.parse("https://jsonplaceholder.typicode.com/users");
+
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      var json = response.body;
+
+      return usersModelFromJson(json);
+    }
+  }
+
+
+
+  
+   static StartObjectModel? usersModel ;
+ 
+  static Future<StartObjectModel?> callStartObjectApi() async {
+    var client = http.Client();
+    var uri = Uri.parse("https://reqres.in/api/users/2");
+
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      var json = response.body;
+
+      return startObjectModelFromJson(json);
+    }
+  }
+
+
+
+
+
+
+
 }
